@@ -1,0 +1,250 @@
+<!doctype html>
+<html>
+<head>
+  <title>Plorp Online - Alpha</title>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.js"></script>
+  <style>
+		body { margin: 0; padding: 0; }
+    #map { background: #000; position: relative; z-index: 10; }
+		#avatar { width: 60px; height: 110px; background: url(images/sprite.png); position: relative; left: 47.5%; top: 36%; z-index: 50; }
+		#tracker { border: 1px solid #e8e8e8; background: #f8f8f8; padding: 20px; position: fixed; width: 200px; height: 200px; z-index: 100; }
+		#tracker h3 { margin: 0 0 10px 0; }
+		#world { width: 100%; height: 600px; background: #063; overflow: hidden; }
+		
+		/* Zones */
+		.zone { width: 45%; height: 33%; display: block; float: left; position: relative; z-index: 51; text-indent: -9999px; -webkit-box-shadow: 0 0 1px #f00; }
+		#zone2, #zone5, #zone8 { width: 10%; }
+		#zone4, #zone5, #zone6 { height: 34%; }
+  </style>
+</head>
+<body>
+<header>
+<div id="tracker">
+<h3>Tracker</h3>
+DEBUG: <span id="debug"></span><br />
+Mouse X: <span id="mx"></span><br />
+Mouse Y: <span id="my"></span><br />
+Map X: <span id="tmx"></span><br />
+Map Y: <span id="tmy"></span><br />
+Avatar X: <span id="ax"></span><br />
+Avatar Y: <span id="ay"></span><br />
+Tile Count: <span id="tc"></span><br />
+</div>
+</header>
+<article>
+<div id="world">
+  <div id="zone1" class="zone">zone1</div>
+  <div id="zone2" class="zone">zone2</div>
+  <div id="zone3" class="zone">zone3</div>
+  <div id="zone4" class="zone">zone4</div>
+  <div id="zone5" class="zone">zone5</div>
+  <div id="zone6" class="zone">zone6</div>
+  <div id="zone7" class="zone">zone7</div>
+  <div id="zone8" class="zone">zone8</div>
+  <div id="zone9" class="zone">zone9</div>
+  <div id="avatar"></div>
+  <!--<canvas id="map" width="2000" height="2000"></canvas>-->
+  <canvas id="map" width="2000" height="2000"></canvas>
+</div>
+</article>
+<footer>
+</footer>
+</body>
+<script type="text/javascript">
+// Disable normal right click
+$(function() {
+		$(this).bind("contextmenu", function(e) {
+				e.preventDefault();
+		});
+});
+
+// Set world window height
+$('#world').css('height',$(window).height());
+
+var mouseZone = 0;
+
+$(document).ready(function(){
+	// Mouse coords
+	$(document).mousemove(function(e){
+		$('#mx').html(e.pageX);
+		$('#my').html(e.pageY);
+	});
+	//figure out what oct of the screen the mouse is in
+	$(document).mousemove(function(e){
+		$('#mx').html(e.pageX);
+		$('#my').html(e.pageY);
+	});
+	//right click functionality to move
+	$('html').mousedown(function(event) {
+			switch (event.which) {
+					case 1: // left mouse button
+					break;
+					case 2: // middle mouse button
+					break;
+					case 3: // right mouse button
+							movement = true;
+							cycle();
+							mouseZone = hoverListen();
+					break;
+					default: // other
+			}
+	}).mouseup(function(event) {
+			switch (event.which) {
+					case 1: // left mouse button
+					break;
+					case 2: // middle mouse button
+					break;
+					case 3: // right mouse button
+							movement = false;
+							hoverListen();
+							// Return to default position
+							$('#avatar').css('background-position', '-240px -110px');
+					break;
+					default: // other
+			}
+	});
+});
+// end mouse coords
+
+// bitmap y key
+var asdir = new Object();
+asdir[1] = -550;
+asdir[2] = -660;
+asdir[3] = -770;
+asdir[4] = -330;
+asdir[5] = -110;
+asdir[6] = -440;
+asdir[7] = 0;
+asdir[8] = -110;
+asdir[9] = -220;
+
+// directional grid key
+var dirkey = new Object();
+dirkey[1] = {'dx':-1, 'dy':-1};
+dirkey[2] = {'dx':-1, 'dy':1};
+dirkey[3] = {'dx':-1, 'dy':1};
+dirkey[4] = {'dx':-1, 'dy':1};
+dirkey[5] = {'dx':-1, 'dy':1};
+dirkey[6] = {'dx':-1, 'dy':1};
+dirkey[7] = {'dx':-1, 'dy':1};
+dirkey[8] = {'dx':-1, 'dy':1};
+dirkey[9] = {'dx':-1, 'dy':1};
+
+// Default position
+$('#avatar').css('background-position', '-240px -110px');
+
+// Were not moving be default
+var movement = false;
+
+// Obvious
+var bgxpos = 0;
+var bgypos = 0;
+
+// cycle for animation
+function cycle() {
+	if(movement){
+		if(bgxpos > 0) { bgxpos = -420; }
+		if(bgxpos < -420) { bgxpos = 0; }
+		bgxpos-=60;
+		$('#avatar').css('background-position', bgxpos-60+'px '+bgypos+'px');
+		// Update avatars position
+		dirinfo = dirkey[mouseZone];
+		//avatarx += dirinfo['dx'];
+		$('#ax').html(mouseZone);
+		//avatary += dirinfo['dy'];
+		//$('#ay').html(dirinfo['dy']);
+		reRenderWorld();
+		setTimeout ( "cycle()", 100 );
+	}
+}
+
+// listens for hovers over zones, changes the animation accordingly
+function hoverListen() {
+	if(movement){
+		$('.zone').live('mouseover mouseout', function(event) {
+			if (event.type == 'mouseover') {
+				var zone_num = $(this).attr("id").substring(4,5);
+				// Update animation
+				bgypos = asdir[zone_num];
+				return zone_num;
+			} else {
+				$(this).css("background","none");
+			}
+		});
+	} else {
+		$('.zone').live('mouseover mouseout', function(event) {
+			if (event.type == 'mouseover') {
+				$(this).css("background","none");
+			} else {
+				$(this).css("background","none");
+			}
+		});
+	}
+}
+
+// renders a tile on the canvas
+function renderTile(x,y,id){ // images example
+	var massoc = new Object();
+	massoc[1] = "images/stonetile.png";
+  var canvas=document.getElementById("map");
+  if(!canvas.getContext) {
+		return;
+	}
+  var ctx=canvas.getContext("2d");
+	var img = new Image();
+  img.onload = function() {
+		ctx.drawImage(img,x,y,44,44);
+	};
+  img.src=massoc[id];
+}
+
+// generate testing map
+function renderTestMap(size) {
+	var tileCount = 0;
+	// set the size of the map accordingly
+	$('#map')
+		.attr('width',(44*size)+44);
+	$('#debug').html($('#map').attr('width'));
+	// make a 100x100 square of tiles to walk around on
+	var x = (44*size)/2; var y = 0; var sh = false;
+	for(var j = 0; j<=size; j++, y+=22, x-=22) {
+		for(var i = 0; i<=size; i++, y+=22, x+=22) {
+			//$('#debug').append('<p>'+x+', '+y+'</p>');
+				renderTile(x,y,1);
+				tileCount++;
+				$('#tc').html(tileCount);
+				$('#tmx').html(tileCount*22);
+				$('#tmy').html(tileCount*22);
+		}
+		x-=(22*size)+22; y-=(22*size)+22;
+	}
+	// Position it correctly
+	$('#map').css('top','-'+($('#world').height())+'px');
+}
+
+// testing
+renderTestMap(250);
+
+// grid variables
+var grid = 44;
+
+//player variables - start out at middle of top left tile
+var avatarx = 0;
+var avatary = 0;
+
+//position in pixels instead of grid units
+var avatar_render_x = avatarx*44 + 22;
+var avatar_render_y = avatary*22;
+
+//re render world on player move
+function reRenderWorld() {/*
+	var topoffset = 400;
+	$('#map')
+		.css('left',($('#world').width()/2)-avatar_render_x)
+		.css('top', ($('#world').height()/2)-avatar_render_y-topoffset);
+	$('#tmx').html(($('#world').width()/2) + avatar_render_x);
+	$('#tmy').html(($('#world').height()/2)-avatar_render_y-topoffset);
+*/}
+
+</script>
+</html>
