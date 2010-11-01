@@ -7,7 +7,7 @@
     $return = array();
 	
     // Returns a JSON array of all scripts that the client uses
-    function loadScripts( $path = '../online/js', $level = 0 ){
+    function loadScripts( $path = '../online/js', $level = 0, $return = array() ){
         
         // Directories to ignore when listing output. Many hosts 
         // will deny PHP access to the cgi-bin. 
@@ -26,7 +26,7 @@
                 if( is_dir( "$path/$file" ) ){ 
                     
                     // Recurse on a new directory. 
-                    loadScripts( "$path/$file", ($level+1) ); 
+                    $return = loadScripts( "$path/$file", ($level+1), $return ); 
                    
                 } else { 
                         
@@ -37,7 +37,7 @@
                     if( $pathparts['extension'] == 'js' ) {
                        
 		        // Add to the array
-                        array_push($return, $file);
+                        array_push($return, $path.'/'.$file);
 			
 		    }
                 } 
@@ -46,13 +46,15 @@
     
         // Close the directory handle 
         closedir( $dh ); 
+	
+	return $return;
     }
     
     // Function to get JS array
     function getJS() {
-            
+	
         // Encode to JSON and return
-        return json_encode($return);
+        return loadScripts();
 	
     }
 ?>
