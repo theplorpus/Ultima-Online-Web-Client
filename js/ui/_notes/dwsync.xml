@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <dwsync>
-<file name="debug.js" server="plorp.com" local="129330549785983174" remote="129330634200000000" />
-<file name="maprenderer.js" server="plorp.com" local="129330549104426056" remote="129330634200000000" />
+<file name="Debug.js" server="plorp.com" local="129330549785983174" remote="129330663000000000" />
+<file name="Initialize.js" server="plorp.com" local="129330661700752282" remote="129330663000000000" />
+<file name="MapRenderer.js" server="plorp.com" local="129330549104426056" remote="129330663000000000" />
 </dwsync>
